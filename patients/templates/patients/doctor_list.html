@@ -3,8 +3,8 @@
 {% block content %}
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0">Врачи</h1>
-  <a href="{% url 'patients:doctor_create' %}" class="btn btn-success">
+  <h1 class="page-title">Врачи</h1>
+  <a href="{% url 'patients:doctor_create' %}" class="btn btn-primary">
     <i class="bi bi-plus-lg me-1"></i>Добавить
   </a>
 </div>
@@ -26,13 +26,24 @@
       <tbody>
         {% for doctor in doctors %}
         <tr>
-          <td class="fw-semibold">{{ doctor.last_name }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="avatar avatar-sm" style="background: #dcfce7; color: #15803d; font-weight: 700; font-size: 0.65rem;">
+                {{ doctor.last_name|first|upper }}{{ doctor.first_name|first|upper }}
+              </div>
+              <span class="fw-semibold">{{ doctor.last_name }}</span>
+            </div>
+          </td>
           <td>{{ doctor.first_name }}</td>
-          <td><span class="badge bg-success-subtle text-success-emphasis">{{ doctor.specialization }}</span></td>
+          <td>
+            <span class="badge rounded-pill" style="background: #eff6ff; color: #1d4ed8; font-weight: 500;">
+              {{ doctor.specialization }}
+            </span>
+          </td>
           <td>{{ doctor.phone|default:"—" }}</td>
           <td>{{ doctor.email|default:"—" }}</td>
           <td class="text-end">
-            <a href="{% url 'patients:doctor_update' doctor.pk %}" class="btn btn-sm btn-outline-primary">Изменить</a>
+            <a href="{% url 'patients:doctor_update' doctor.pk %}" class="btn btn-sm btn-outline-secondary">Изменить</a>
             <a href="{% url 'patients:doctor_delete' doctor.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
           </td>
         </tr>

@@ -4,60 +4,405 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}MedicalApp{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%232563eb'/><path d='M6 3v3H3v2h3v3h2V8h3V6H8V3H6z' fill='white'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --sidebar-w: 256px;
+      --sidebar-w-collapsed: 64px;
+      --sidebar-bg: #1a3558;
+      --sidebar-hover: rgba(255,255,255,0.07);
+      --sidebar-active: #2563eb;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f1f5f9;
+      --text-muted: #64748b;
+      --transition: 0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      min-height: 100vh;
+      color: #0f172a;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      z-index: 200;
+      transition: width var(--transition);
+      overflow: hidden;
+    }
+
+    /* ── Brand ── */
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 18px 15px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    /* ── Toggle button (nav item style) ── */
+    .sidebar-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      color: rgba(255,255,255,0.4);
+      background: none;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: background var(--transition), color var(--transition);
+      margin-top: 4px;
+    }
+
+    .sidebar-toggle:hover { background: var(--sidebar-hover); color: rgba(255,255,255,0.7); }
+
+    .sidebar-toggle i {
+      font-size: 1rem;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+      transition: transform var(--transition);
+    }
+
+    .sidebar-brand-icon {
+      width: 34px; height: 34px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand-text {
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.975rem;
+      letter-spacing: -0.01em;
+      transition: opacity var(--transition), width var(--transition);
+    }
+
+    /* ── Nav ── */
+    .sidebar-section {
+      padding: 16px 10px 8px;
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      padding: 0 8px 6px;
+      white-space: nowrap;
+      transition: opacity var(--transition);
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+      transition: background var(--transition), color var(--transition);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .sidebar-link i {
+      font-size: 1rem;
+      width: 18px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-link-text { transition: opacity var(--transition); }
+
+    .sidebar-link:hover { background: var(--sidebar-hover); color: #fff; }
+    .sidebar-link.active { background: var(--sidebar-active); color: #fff; }
+
+    /* ── User ── */
+    .sidebar-user {
+      padding: 10px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+
+    .sidebar-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 7px;
+      text-decoration: none;
+      margin-bottom: 7px;
+      transition: background var(--transition);
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .sidebar-user-info:hover { background: var(--sidebar-hover); }
+
+    .avatar {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .avatar-sm { width: 30px; height: 30px; font-size: 0.7rem; }
+
+    .sidebar-user-name {
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1.25;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-user-sub {
+      color: rgba(255,255,255,0.38);
+      font-size: 0.68rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-user-text { transition: opacity var(--transition); }
+
+    .btn-sidebar-logout {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: none;
+      color: rgba(255,255,255,0.5);
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .btn-sidebar-logout:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .btn-sidebar-logout-text { transition: opacity var(--transition); }
+
+    /* ── Collapsed state ── */
+    .sidebar.collapsed {
+      width: var(--sidebar-w-collapsed);
+    }
+
+    .sidebar.collapsed .sidebar-brand-text,
+    .sidebar.collapsed .sidebar-label,
+    .sidebar.collapsed .sidebar-link-text,
+    .sidebar.collapsed .sidebar-user-text,
+    .sidebar.collapsed .btn-sidebar-logout-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+
+    .sidebar.collapsed .sidebar-toggle i {
+      transform: rotate(180deg);
+    }
+
+    .sidebar.collapsed .sidebar-link {
+      justify-content: center;
+      padding: 9px;
+    }
+
+    .sidebar.collapsed .sidebar-link i { width: auto; }
+
+    .sidebar.collapsed .sidebar-user-info {
+      justify-content: center;
+      padding: 8px 4px;
+    }
+
+    .sidebar.collapsed .btn-sidebar-logout {
+      padding: 7px 4px;
+    }
+
+    /* ── Main content ── */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      padding: 28px 32px;
+      min-height: 100vh;
+      transition: margin-left var(--transition);
+    }
+
+    .main-content.sidebar-collapsed {
+      margin-left: var(--sidebar-w-collapsed);
+    }
+
+    /* ── Cards ── */
+    .card {
+      border: none !important;
+      box-shadow: 0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+      border-radius: 10px !important;
+    }
+
+    .card-header {
+      border-bottom: 1px solid #f1f5f9 !important;
+      border-radius: 10px 10px 0 0 !important;
+      padding: 14px 18px !important;
+    }
+
+    /* ── Tables ── */
+    .table th {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom-width: 1px !important;
+      padding: 10px 16px !important;
+    }
+
+    .table td { padding: 12px 16px !important; vertical-align: middle; }
+    .table-hover tbody tr:hover { background: #f8fafc; }
+
+    /* ── Buttons ── */
+    .btn { font-weight: 500; border-radius: 7px; font-size: 0.875rem; }
+    .btn-sm { font-size: 0.8rem; border-radius: 6px; }
+
+    .btn-primary { background: var(--primary); border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    .btn-outline-primary { color: var(--primary); border-color: var(--primary); }
+    .btn-outline-primary:hover { background: var(--primary); border-color: var(--primary); }
+
+    /* ── Forms ── */
+    .form-control, .form-select {
+      border-radius: 7px;
+      border-color: #e2e8f0;
+      font-size: 0.875rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .form-label { font-size: 0.875rem; font-weight: 500; color: #374151; }
+
+    /* ── Page heading ── */
+    .page-title { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; color: #0f172a; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main-content { margin-left: 0; padding: 16px; }
+    }
+  </style>
 </head>
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="{% url 'index' %}">
-      <i class="bi bi-heart-pulse-fill me-1"></i>MedicalApp
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link {% if '/patients' in request.path and '/doctors' not in request.path %}active{% endif %}"
-             href="{% url 'patients:list' %}">
-            <i class="bi bi-people me-1"></i>Пациенты
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if '/doctors' in request.path %}active{% endif %}"
-             href="{% url 'patients:doctor_list' %}">
-            <i class="bi bi-person-badge me-1"></i>Врачи
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {% if '/records' in request.path %}active{% endif %}"
-             href="{% url 'records:list' %}">
-            <i class="bi bi-file-medical me-1"></i>Записи
-          </a>
-        </li>
-      </ul>
+{% if user.is_authenticated %}
+<aside class="sidebar" id="sidebar">
 
-      {% if user.is_authenticated %}
-      <div class="d-flex align-items-center ms-3 gap-2">
-        <a href="{% url 'profile' %}" class="text-white-50 small text-decoration-none">
-          <i class="bi bi-person-circle me-1"></i>{{ user.username }}
-        </a>
-        <form method="post" action="{% url 'logout' %}" class="m-0">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-outline-light btn-sm">Выйти</button>
-        </form>
-      </div>
-      {% endif %}
+  <a href="{% url 'index' %}" class="sidebar-brand">
+    <div class="sidebar-brand-icon">
+      <i class="bi bi-heart-pulse-fill text-white" style="font-size: 1rem;"></i>
     </div>
-  </div>
-</nav>
+    <span class="sidebar-brand-text">MedicalApp</span>
+  </a>
 
-<main class="container py-4">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Меню</div>
+
+    <a href="{% url 'index' %}" title="Главная"
+       class="sidebar-link {% if request.path == '/' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill"></i>
+      <span class="sidebar-link-text">Главная</span>
+    </a>
+
+    <a href="{% url 'patients:list' %}" title="Пациенты"
+       class="sidebar-link {% if '/patients' in request.path and '/doctors' not in request.path %}active{% endif %}">
+      <i class="bi bi-people-fill"></i>
+      <span class="sidebar-link-text">Пациенты</span>
+    </a>
+
+    <a href="{% url 'patients:doctor_list' %}" title="Врачи"
+       class="sidebar-link {% if '/doctors' in request.path %}active{% endif %}">
+      <i class="bi bi-person-badge-fill"></i>
+      <span class="sidebar-link-text">Врачи</span>
+    </a>
+
+    <a href="{% url 'records:list' %}" title="Записи"
+       class="sidebar-link {% if '/records' in request.path %}active{% endif %}">
+      <i class="bi bi-file-medical-fill"></i>
+      <span class="sidebar-link-text">Записи</span>
+    </a>
+
+    <button class="sidebar-toggle" id="sidebarToggle" title="Свернуть меню">
+      <i class="bi bi-layout-sidebar" id="toggleIcon"></i>
+      <span class="sidebar-link-text">Свернуть</span>
+    </button>
+  </div>
+
+  <div class="sidebar-user">
+    <a href="{% url 'profile' %}" class="sidebar-user-info" title="{{ user.username }}">
+      <div class="avatar">{{ user.username|first|upper }}</div>
+      <div class="sidebar-user-text" style="overflow: hidden;">
+        <div class="sidebar-user-name">{{ user.get_full_name|default:user.username }}</div>
+        <div class="sidebar-user-sub">{{ user.profile.position|default:"Профиль" }}</div>
+      </div>
+    </a>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn-sidebar-logout" title="Выйти">
+        <i class="bi bi-box-arrow-left"></i>
+        <span class="btn-sidebar-logout-text">Выйти</span>
+      </button>
+    </form>
+  </div>
+
+</aside>
+
+<main class="main-content" id="mainContent">
   {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
       {{ message }}
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
@@ -68,5 +413,27 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('mainContent');
+  const toggle = document.getElementById('sidebarToggle');
+  const icon = document.getElementById('toggleIcon');
+
+  function setCollapsed(collapsed) {
+    sidebar.classList.toggle('collapsed', collapsed);
+    main.classList.toggle('sidebar-collapsed', collapsed);
+    localStorage.setItem('sidebarCollapsed', collapsed);
+  }
+
+  // Restore state on load
+  setCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
+
+  toggle.addEventListener('click', () => {
+    setCollapsed(!sidebar.classList.contains('collapsed'));
+  });
+</script>
+
+{% endif %}
+
 </body>
 </html>
