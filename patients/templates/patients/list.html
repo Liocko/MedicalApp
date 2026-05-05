@@ -33,8 +33,6 @@
           <td>{{ patient.email|default:"—" }}</td>
           <td class="text-end">
             <a href="{% url 'patients:detail' patient.pk %}" class="btn btn-sm btn-outline-secondary">Карточка</a>
-            <a href="{% url 'patients:update' patient.pk %}" class="btn btn-sm btn-outline-primary">Изменить</a>
-            <a href="{% url 'patients:delete' patient.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
           </td>
         </tr>
         {% endfor %}

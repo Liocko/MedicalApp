@@ -2,14 +2,59 @@
 {% block title %}Медицинские записи{% endblock %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h3 mb-0">Медицинские записи</h1>
   <a href="{% url 'records:create' %}" class="btn btn-info text-white">
     <i class="bi bi-plus-lg me-1"></i>Новая запись
   </a>
 </div>
 
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-body pb-2">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small fw-semibold mb-1">Пациент</label>
+        <input type="text" name="patient" class="form-control form-control-sm"
+               placeholder="Фамилия или имя" value="{{ f.patient }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Врач</label>
+        <select name="doctor" class="form-select form-select-sm">
+          <option value="">Все врачи</option>
+          {% for doc in doctors %}
+          <option value="{{ doc.pk }}" {% if f.doctor == doc.pk|stringformat:"s" %}selected{% endif %}>
+            {{ doc }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Диагноз</label>
+        <input type="text" name="diagnosis" class="form-control form-control-sm"
+               placeholder="Ключевое слово" value="{{ f.diagnosis }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Дата от</label>
+        <input type="date" name="date_from" class="form-control form-control-sm" value="{{ f.date_from }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small fw-semibold mb-1">Дата до</label>
+        <input type="date" name="date_to" class="form-control form-control-sm" value="{{ f.date_to }}">
+      </div>
+      <div class="col-md-1 d-flex gap-1">
+        <button type="submit" class="btn btn-primary btn-sm w-100">
+          <i class="bi bi-search"></i>
+        </button>
+        <a href="{% url 'records:list' %}" class="btn btn-outline-secondary btn-sm w-100">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% if records %}
+<div class="text-muted small mb-2 ps-1">Найдено: {{ records|length }}</div>
 <div class="card border-0 shadow-sm">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
@@ -33,7 +78,6 @@
           <td class="text-muted small">{{ rec.created_at|date:"d.m.Y" }}</td>
           <td class="text-end">
             <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm btn-outline-secondary">Открыть</a>
-            <a href="{% url 'records:update' rec.pk %}" class="btn btn-sm btn-outline-primary">Изменить</a>
             <a href="{% url 'records:delete' rec.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
           </td>
         </tr>
@@ -45,7 +89,11 @@
 {% else %}
 <div class="text-center py-5 text-muted">
   <i class="bi bi-file-medical fs-1 d-block mb-2"></i>
-  Записей пока нет. <a href="{% url 'records:create' %}">Создать первую</a>
+  {% if f %}
+    По вашему запросу ничего не найдено. <a href="{% url 'records:list' %}">Сбросить фильтр</a>
+  {% else %}
+    Записей пока нет. <a href="{% url 'records:create' %}">Создать первую</a>
+  {% endif %}
 </div>
 {% endif %}
 
