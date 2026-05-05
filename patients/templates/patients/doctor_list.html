@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Врачи{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Врачи</h1>
+  <a href="{% url 'patients:doctor_create' %}" class="btn btn-success">
+    <i class="bi bi-plus-lg me-1"></i>Добавить
+  </a>
+</div>
+
+{% if doctors %}
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Фамилия</th>
+          <th>Имя</th>
+          <th>Специализация</th>
+          <th>Телефон</th>
+          <th>Email</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doctor in doctors %}
+        <tr>
+          <td class="fw-semibold">{{ doctor.last_name }}</td>
+          <td>{{ doctor.first_name }}</td>
+          <td><span class="badge bg-success-subtle text-success-emphasis">{{ doctor.specialization }}</span></td>
+          <td>{{ doctor.phone|default:"—" }}</td>
+          <td>{{ doctor.email|default:"—" }}</td>
+          <td class="text-end">
+            <a href="{% url 'patients:doctor_update' doctor.pk %}" class="btn btn-sm btn-outline-primary">Изменить</a>
+            <a href="{% url 'patients:doctor_delete' doctor.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-person-badge fs-1 d-block mb-2"></i>
+  Врачей пока нет. <a href="{% url 'patients:doctor_create' %}">Добавить первого</a>
+</div>
+{% endif %}
+
+{% endblock %}

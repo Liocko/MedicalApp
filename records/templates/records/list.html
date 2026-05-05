@@ -1,6 +1,52 @@
 {% extends "base.html" %}
-{% block title %}Записи{% endblock %}
+{% block title %}Медицинские записи{% endblock %}
 {% block content %}
-<h1>Записи</h1>
-<p class="text-muted">Здесь будет список медицинских записей.</p>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">Медицинские записи</h1>
+  <a href="{% url 'records:create' %}" class="btn btn-info text-white">
+    <i class="bi bi-plus-lg me-1"></i>Новая запись
+  </a>
+</div>
+
+{% if records %}
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Пациент</th>
+          <th>Врач</th>
+          <th>Заголовок</th>
+          <th>Диагноз</th>
+          <th>Дата</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rec in records %}
+        <tr>
+          <td><a href="{% url 'patients:detail' rec.patient.pk %}">{{ rec.patient }}</a></td>
+          <td>{{ rec.doctor }}</td>
+          <td>{{ rec.title }}</td>
+          <td>{{ rec.diagnosis|default:"—" }}</td>
+          <td class="text-muted small">{{ rec.created_at|date:"d.m.Y" }}</td>
+          <td class="text-end">
+            <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm btn-outline-secondary">Открыть</a>
+            <a href="{% url 'records:update' rec.pk %}" class="btn btn-sm btn-outline-primary">Изменить</a>
+            <a href="{% url 'records:delete' rec.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="text-center py-5 text-muted">
+  <i class="bi bi-file-medical fs-1 d-block mb-2"></i>
+  Записей пока нет. <a href="{% url 'records:create' %}">Создать первую</a>
+</div>
+{% endif %}
+
 {% endblock %}

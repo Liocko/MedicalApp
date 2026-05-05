@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}{{ patient }}{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0">{{ patient }}</h1>
+  <div class="d-flex gap-2">
+    <a href="{% url 'patients:update' patient.pk %}" class="btn btn-outline-primary">
+      <i class="bi bi-pencil me-1"></i>Изменить
+    </a>
+    <a href="{% url 'patients:delete' patient.pk %}" class="btn btn-outline-danger">
+      <i class="bi bi-trash me-1"></i>Удалить
+    </a>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white fw-semibold">
+        <i class="bi bi-person me-1"></i>Данные пациента
+      </div>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between">
+          <span class="text-muted">Дата рождения</span>
+          <span>{{ patient.date_of_birth|date:"d.m.Y" }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span class="text-muted">Телефон</span>
+          <span>{{ patient.phone|default:"—" }}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+          <span class="text-muted">Email</span>
+          <span>{{ patient.email|default:"—" }}</span>
+        </li>
+        {% if patient.address %}
+        <li class="list-group-item">
+          <div class="text-muted mb-1">Адрес</div>
+          <div>{{ patient.address }}</div>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="bi bi-file-medical me-1"></i>Медицинские записи</span>
+        <a href="{% url 'records:create' %}" class="btn btn-sm btn-primary">
+          <i class="bi bi-plus-lg me-1"></i>Добавить запись
+        </a>
+      </div>
+      {% if records %}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Заголовок</th>
+              <th>Врач</th>
+              <th>Дата</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for rec in records %}
+            <tr>
+              <td>{{ rec.title }}</td>
+              <td>{{ rec.doctor }}</td>
+              <td class="text-muted small">{{ rec.created_at|date:"d.m.Y" }}</td>
+              <td class="text-end">
+                <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm btn-outline-secondary">Открыть</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-body text-muted text-center py-4">
+        Записей нет.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <a href="{% url 'patients:list' %}" class="text-muted text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i>Назад к списку
+  </a>
+</div>
+
+{% endblock %}

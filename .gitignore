@@ -17,3 +17,6 @@ media/
 
 # macOS
 .DS_Store
+
+# Claude Code
+CLAUDE.md
