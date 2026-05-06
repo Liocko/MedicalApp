@@ -8,6 +8,7 @@ class MedicalRecord(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     diagnosis = models.CharField(max_length=300, blank=True)
+    appointment_time = models.DateTimeField(null=True, blank=True, verbose_name="Время записи")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

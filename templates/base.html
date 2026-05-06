@@ -105,6 +105,7 @@
       width: 100%;
       white-space: nowrap;
       overflow: hidden;
+      text-align: start;
       transition: background var(--transition), color var(--transition);
       margin-top: 4px;
       font-family: 'Golos Text', sans-serif;
@@ -254,7 +255,8 @@
     .sidebar.collapsed .btn-sidebar-logout-text,
     .sidebar.collapsed .notif-badge {
       opacity: 0;
-      width: 0;
+      flex: 0 0 0;
+      min-width: 0;
       overflow: hidden;
     }
 
@@ -263,10 +265,17 @@
     .sidebar.collapsed .sidebar-link {
       justify-content: center;
       padding: 9px;
+      gap: 0;
       border-left-color: transparent !important;
     }
 
     .sidebar.collapsed .sidebar-link i { width: auto; }
+
+    .sidebar.collapsed .sidebar-toggle {
+      justify-content: center;
+      padding: 9px;
+      gap: 0;
+    }
 
     .sidebar.collapsed .sidebar-user-info {
       justify-content: center;
@@ -556,7 +565,7 @@
       <span class="sidebar-link-text">Расписание</span>
     </a>
 
-    <button class="sidebar-toggle" id="sidebarToggle" title="Свернуть меню">
+    <button type="button" class="sidebar-toggle" id="sidebarToggle" title="Свернуть меню">
       <i class="bi bi-layout-sidebar"></i>
       <span class="sidebar-link-text">Свернуть</span>
     </button>
@@ -599,10 +608,12 @@
 <main class="main-content" id="mainContent">
   {% if messages %}
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+      {% if 'ws_notification' not in message.tags %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endif %}
     {% endfor %}
   {% endif %}
 
@@ -632,24 +643,23 @@
     setCollapsed(!sidebar.classList.contains('collapsed'));
   });
 
-  // ── WebSocket notifications ──
+  // ── Toast notifications ──
   let notifCount = 0;
 
-  function showToast(msg) {
+  function showToast(patient, title, doctor) {
     const container = document.getElementById('wsToastContainer');
     const el = document.createElement('div');
     el.className = 'ws-toast';
     el.innerHTML = `
       <div class="ws-toast-icon"><i class="bi bi-file-medical-fill"></i></div>
       <div>
-        <div class="ws-toast-title">Новая запись: ${escHtml(msg.title)}</div>
-        <div class="ws-toast-sub">${escHtml(msg.patient)} · ${escHtml(msg.doctor)}</div>
+        <div class="ws-toast-title">Новая запись: ${escHtml(title)}</div>
+        <div class="ws-toast-sub">${escHtml(patient)} · ${escHtml(doctor)}</div>
       </div>`;
     container.appendChild(el);
     setTimeout(() => el.remove(), 5000);
     notifCount++;
-    badge.textContent = notifCount;
-    badge.style.display = 'inline-block';
+    if (badge) { badge.textContent = notifCount; badge.style.display = 'inline-block'; }
   }
 
   function escHtml(s) {
@@ -661,6 +671,14 @@
     notifCount = 0;
     if (badge) badge.style.display = 'none';
   }
+
+  // Show toast for creator from Django flash message after redirect
+  {% for message in messages %}{% if 'ws_notification' in message.tags %}
+  (function() {
+    const parts = "{{ message|escapejs }}".split('|');
+    if (parts.length === 3) showToast(parts[0], parts[1], parts[2]);
+  })();
+  {% endif %}{% endfor %}
 
   const wsProto = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const ws = new WebSocket(`${wsProto}://${window.location.host}/ws/notifications/`);
@@ -680,7 +698,7 @@
   };
   ws.onmessage = (e) => {
     const msg = JSON.parse(e.data);
-    if (msg.type === 'new_record') showToast(msg);
+    if (msg.type === 'new_record') showToast(msg.patient, msg.title, msg.doctor);
   };
 </script>
 

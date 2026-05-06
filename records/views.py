@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q, Count
 from django.urls import reverse_lazy
@@ -62,6 +63,16 @@ class RecordCreateView(LoginRequiredMixin, CreateView):
     template_name = 'records/form.html'
     success_url = reverse_lazy('records:list')
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        rec = self.object
+        messages.success(
+            self.request,
+            f'{rec.patient}|{rec.title}|{rec.doctor}',
+            extra_tags='ws_notification',
+        )
+        return response
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['title'] = 'Новая запись'
@@ -98,14 +109,22 @@ class ScheduleView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        from patients.models import Doctor
         today = timezone.localdate()
+
+        # Загрузка врачей: общее число записей каждого
         doctors = Doctor.objects.annotate(
             total=Count('records'),
         ).filter(total__gt=0).order_by('last_name')
+
+        # Записи сегодня (по appointment_time если задан, иначе по created_at)
+        today_records = MedicalRecord.objects.select_related(
+            'patient', 'doctor'
+        ).filter(
+            Q(appointment_time__date=today) |
+            Q(appointment_time__isnull=True, created_at__date=today)
+        ).order_by('-appointment_time', '-created_at')
+
         ctx['doctors'] = doctors
         ctx['today'] = today
-        ctx['today_records'] = MedicalRecord.objects.select_related(
-            'patient', 'doctor'
-        ).filter(created_at__date=today).order_by('doctor__last_name')
+        ctx['today_records'] = today_records
         return ctx

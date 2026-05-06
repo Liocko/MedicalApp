@@ -27,9 +27,15 @@
           <span class="text-muted">Врач</span>
           <span>{{ record.doctor }}</span>
         </li>
+        {% if record.appointment_time %}
+        <li class="list-group-item d-flex justify-content-between">
+          <span class="text-muted">Время приёма</span>
+          <span class="font-mono" style="color: #1d4ed8; font-weight: 700;">{{ record.appointment_time|date:"d.m.Y H:i" }}</span>
+        </li>
+        {% endif %}
         <li class="list-group-item d-flex justify-content-between">
           <span class="text-muted">Дата создания</span>
-          <span>{{ record.created_at|date:"d.m.Y" }}</span>
+          <span>{{ record.created_at|date:"d.m.Y H:i" }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between">
           <span class="text-muted">Обновлено</span>

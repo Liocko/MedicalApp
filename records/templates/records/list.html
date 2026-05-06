@@ -75,7 +75,13 @@
           <td style="color: #1e3a5f; font-weight: 500;">{{ rec.doctor }}</td>
           <td style="color: #475569;">{{ rec.title }}</td>
           <td style="color: #64748b; font-size: 0.85rem;">{{ rec.diagnosis|default:"—" }}</td>
-          <td class="font-mono" style="color: #3b82f6; font-weight: 600; font-size: 0.8rem;">{{ rec.created_at|date:"d.m.Y" }}</td>
+          <td class="font-mono" style="font-size: 0.8rem;">
+            {% if rec.appointment_time %}
+              <span style="color: #1d4ed8; font-weight: 700;">{{ rec.appointment_time|date:"d.m.Y H:i" }}</span>
+            {% else %}
+              <span style="color: #94a3b8;">{{ rec.created_at|date:"d.m.Y" }}</span>
+            {% endif %}
+          </td>
           <td class="text-end">
             <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm btn-outline-secondary">Открыть</a>
             <a href="{% url 'records:delete' rec.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
