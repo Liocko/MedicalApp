@@ -1,63 +1,64 @@
 {% extends "base.html" %}
-{% block title %}Главная — MedicalApp{% endblock %}
+{% block title %}Дашборд — MedicalApp{% endblock %}
 {% block content %}
 
-<h1 class="h3 mb-4">Панель управления</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="page-title mb-1">Добрый день! 👋</h1>
+    <p class="mb-0" style="color: #64748b; font-size: 0.875rem;">Панель управления МедРегистр</p>
+  </div>
+  <a href="{% url 'records:create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Новая запись
+  </a>
+</div>
 
-<div class="row g-4 mb-4">
-  <div class="col-sm-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="bg-primary bg-opacity-10 rounded-3 p-3">
-          <i class="bi bi-people-fill fs-3 text-primary"></i>
-        </div>
-        <div>
-          <div class="fs-2 fw-bold">{{ patient_count }}</div>
-          <div class="text-muted small">Пациентов</div>
-        </div>
-      </div>
-      <div class="card-footer bg-transparent border-0 pt-0">
-        <a href="{% url 'patients:list' %}" class="btn btn-sm btn-outline-primary w-100">Открыть</a>
+{# ── 4 stat cards ── #}
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-body" style="padding: 16px 18px;">
+        <div class="stat-value mb-1">{{ patient_count }}</div>
+        <div style="font-size: 0.8rem; font-weight: 600; color: #475569;">Пациентов</div>
+        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">В базе данных</div>
       </div>
     </div>
   </div>
-  <div class="col-sm-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="bg-success bg-opacity-10 rounded-3 p-3">
-          <i class="bi bi-person-badge-fill fs-3 text-success"></i>
-        </div>
-        <div>
-          <div class="fs-2 fw-bold">{{ doctor_count }}</div>
-          <div class="text-muted small">Врачей</div>
-        </div>
-      </div>
-      <div class="card-footer bg-transparent border-0 pt-0">
-        <a href="{% url 'patients:doctor_list' %}" class="btn btn-sm btn-outline-success w-100">Открыть</a>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-body" style="padding: 16px 18px;">
+        <div class="stat-value mb-1">{{ doctor_count }}</div>
+        <div style="font-size: 0.8rem; font-weight: 600; color: #475569;">Врачей</div>
+        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">Активных специалистов</div>
       </div>
     </div>
   </div>
-  <div class="col-sm-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body d-flex align-items-center gap-3">
-        <div class="bg-info bg-opacity-10 rounded-3 p-3">
-          <i class="bi bi-file-medical-fill fs-3 text-info"></i>
-        </div>
-        <div>
-          <div class="fs-2 fw-bold">{{ record_count }}</div>
-          <div class="text-muted small">Записей</div>
-        </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-body" style="padding: 16px 18px;">
+        <div class="stat-value mb-1">{{ record_count }}</div>
+        <div style="font-size: 0.8rem; font-weight: 600; color: #475569;">Записей</div>
+        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">Медицинских карт</div>
       </div>
-      <div class="card-footer bg-transparent border-0 pt-0">
-        <a href="{% url 'records:list' %}" class="btn btn-sm btn-outline-info w-100">Открыть</a>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="card h-100">
+      <div class="card-body" style="padding: 16px 18px;">
+        <div class="stat-value mb-1">{{ today_count }}</div>
+        <div style="font-size: 0.8rem; font-weight: 600; color: #475569;">Сегодня</div>
+        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 3px;">Записей за сегодня</div>
       </div>
     </div>
   </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-  <div class="card-header bg-white fw-semibold">
-    <i class="bi bi-clock-history me-1"></i>Последние записи
+{# ── Recent records ── #}
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center" style="padding: 14px 18px !important;">
+    <span style="font-weight: 700; color: #0f172a; font-size: 0.875rem;">Последние записи</span>
+    <a href="{% url 'records:list' %}" style="font-size: 0.8rem; color: var(--primary); font-weight: 600; text-decoration: none;">
+      Все записи →
+    </a>
   </div>
   {% if recent_records %}
   <div class="table-responsive">
@@ -66,24 +67,33 @@
         <tr>
           <th>Пациент</th>
           <th>Врач</th>
-          <th>Заголовок</th>
+          <th>Запись</th>
+          <th>Диагноз</th>
           <th>Дата</th>
         </tr>
       </thead>
       <tbody>
         {% for rec in recent_records %}
         <tr>
-          <td><a href="{% url 'patients:detail' rec.patient.pk %}">{{ rec.patient }}</a></td>
-          <td>{{ rec.doctor }}</td>
-          <td><a href="{% url 'records:detail' rec.pk %}">{{ rec.title }}</a></td>
-          <td class="text-muted small">{{ rec.created_at|date:"d.m.Y" }}</td>
+          <td>
+            <a href="{% url 'patients:detail' rec.patient.pk %}" style="font-weight: 600; color: #0f172a; text-decoration: none;">
+              {{ rec.patient }}
+            </a>
+          </td>
+          <td style="color: #1e3a5f; font-weight: 500; font-size: 0.85rem;">{{ rec.doctor }}</td>
+          <td>
+            <a href="{% url 'records:detail' rec.pk %}" style="color: #475569; text-decoration: none; font-size: 0.875rem;">{{ rec.title }}</a>
+          </td>
+          <td style="color: #64748b; font-size: 0.8rem;">{{ rec.diagnosis|default:"—" }}</td>
+          <td class="font-mono" style="color: #3b82f6; font-weight: 600; font-size: 0.78rem;">{{ rec.created_at|date:"d.m.Y" }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% else %}
-  <div class="card-body text-muted text-center py-4">
+  <div class="card-body text-center py-5" style="color: #94a3b8;">
+    <i class="bi bi-file-medical fs-1 d-block mb-2"></i>
     Записей пока нет. <a href="{% url 'records:create' %}">Создать первую</a>
   </div>
   {% endif %}

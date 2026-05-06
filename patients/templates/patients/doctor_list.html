@@ -10,13 +10,12 @@
 </div>
 
 {% if doctors %}
-<div class="card border-0 shadow-sm">
+<div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead class="table-light">
         <tr>
-          <th>Фамилия</th>
-          <th>Имя</th>
+          <th>Врач</th>
           <th>Специализация</th>
           <th>Телефон</th>
           <th>Email</th>
@@ -28,20 +27,19 @@
         <tr>
           <td>
             <div class="d-flex align-items-center gap-2">
-              <div class="avatar avatar-sm" style="background: #dcfce7; color: #15803d; font-weight: 700; font-size: 0.65rem;">
+              <div class="avatar avatar-sm" style="background: #dcfce7; color: #15803d; font-weight: 700; font-size: 0.62rem;">
                 {{ doctor.last_name|first|upper }}{{ doctor.first_name|first|upper }}
               </div>
-              <span class="fw-semibold">{{ doctor.last_name }}</span>
+              <span style="font-weight: 600; color: #0f172a;">{{ doctor.last_name }} {{ doctor.first_name }}</span>
             </div>
           </td>
-          <td>{{ doctor.first_name }}</td>
           <td>
-            <span class="badge rounded-pill" style="background: #eff6ff; color: #1d4ed8; font-weight: 500;">
+            <span class="status-badge" style="background: #eff6ff; color: #1d4ed8;">
               {{ doctor.specialization }}
             </span>
           </td>
-          <td>{{ doctor.phone|default:"—" }}</td>
-          <td>{{ doctor.email|default:"—" }}</td>
+          <td class="font-mono" style="color: #475569;">{{ doctor.phone|default:"—" }}</td>
+          <td style="color: #64748b; font-size: 0.85rem;">{{ doctor.email|default:"—" }}</td>
           <td class="text-end">
             <a href="{% url 'patients:doctor_update' doctor.pk %}" class="btn btn-sm btn-outline-secondary">Изменить</a>
             <a href="{% url 'patients:doctor_delete' doctor.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
@@ -53,7 +51,7 @@
   </div>
 </div>
 {% else %}
-<div class="text-center py-5 text-muted">
+<div class="text-center py-5" style="color: #94a3b8;">
   <i class="bi bi-person-badge fs-1 d-block mb-2"></i>
   Врачей пока нет. <a href="{% url 'patients:doctor_create' %}">Добавить первого</a>
 </div>

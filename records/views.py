@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from patients.models import Doctor
@@ -83,3 +84,28 @@ class RecordDeleteView(LoginRequiredMixin, DeleteView):
     model = MedicalRecord
     template_name = 'records/confirm_delete.html'
     success_url = reverse_lazy('records:list')
+
+
+class ScheduleView(LoginRequiredMixin, ListView):
+    model = MedicalRecord
+    template_name = 'records/schedule.html'
+    context_object_name = 'records'
+
+    def get_queryset(self):
+        return MedicalRecord.objects.select_related('patient', 'doctor').order_by(
+            'doctor__last_name', '-created_at'
+        )
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        from patients.models import Doctor
+        today = timezone.localdate()
+        doctors = Doctor.objects.annotate(
+            total=Count('records'),
+        ).filter(total__gt=0).order_by('last_name')
+        ctx['doctors'] = doctors
+        ctx['today'] = today
+        ctx['today_records'] = MedicalRecord.objects.select_related(
+            'patient', 'doctor'
+        ).filter(created_at__date=today).order_by('doctor__last_name')
+        return ctx

@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import OuterRef, Subquery
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Patient, Doctor
@@ -10,6 +11,14 @@ class PatientListView(LoginRequiredMixin, ListView):
     template_name = 'patients/list.html'
     context_object_name = 'patients'
 
+    def get_queryset(self):
+        from records.models import MedicalRecord
+        last = MedicalRecord.objects.filter(patient=OuterRef('pk')).order_by('-created_at')
+        return Patient.objects.annotate(
+            last_visit=Subquery(last.values('created_at')[:1]),
+            last_doctor=Subquery(last.values('doctor__last_name')[:1]),
+        ).order_by('last_name', 'first_name')
+
 
 class PatientDetailView(LoginRequiredMixin, DetailView):
     model = Patient
@@ -18,7 +27,14 @@ class PatientDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['records'] = self.object.records.select_related('doctor').order_by('-created_at')
+        p = self.object
+        ctx['records'] = p.records.select_related('doctor').order_by('-created_at')
+        ctx['patient_info'] = [
+            ('Дата рождения', p.date_of_birth.strftime('%d.%m.%Y'), True),
+            ('Телефон', str(p.phone) if p.phone else '—', True),
+            ('Email', p.email or '—', False),
+            ('Адрес', p.address or '—', False),
+        ]
         return ctx
 
 

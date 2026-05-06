@@ -9,7 +9,7 @@
   </a>
 </div>
 
-<div class="card border-0 shadow-sm mb-3">
+<div class="card mb-3">
   <div class="card-body pb-2">
     <form method="get" class="row g-2 align-items-end">
       <div class="col-md-3">
@@ -54,8 +54,8 @@
 </div>
 
 {% if records %}
-<div class="text-muted small mb-2 ps-1">Найдено: {{ records|length }}</div>
-<div class="card border-0 shadow-sm">
+<div class="mb-2 ps-1" style="font-size: 0.8rem; color: #64748b;">Найдено: {{ records|length }}</div>
+<div class="card">
   <div class="table-responsive">
     <table class="table table-hover mb-0">
       <thead class="table-light">
@@ -71,11 +71,11 @@
       <tbody>
         {% for rec in records %}
         <tr>
-          <td><a href="{% url 'patients:detail' rec.patient.pk %}">{{ rec.patient }}</a></td>
-          <td>{{ rec.doctor }}</td>
-          <td>{{ rec.title }}</td>
-          <td>{{ rec.diagnosis|default:"—" }}</td>
-          <td class="text-muted small">{{ rec.created_at|date:"d.m.Y" }}</td>
+          <td><a href="{% url 'patients:detail' rec.patient.pk %}" style="font-weight: 600; color: #0f172a; text-decoration: none;">{{ rec.patient }}</a></td>
+          <td style="color: #1e3a5f; font-weight: 500;">{{ rec.doctor }}</td>
+          <td style="color: #475569;">{{ rec.title }}</td>
+          <td style="color: #64748b; font-size: 0.85rem;">{{ rec.diagnosis|default:"—" }}</td>
+          <td class="font-mono" style="color: #3b82f6; font-weight: 600; font-size: 0.8rem;">{{ rec.created_at|date:"d.m.Y" }}</td>
           <td class="text-end">
             <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm btn-outline-secondary">Открыть</a>
             <a href="{% url 'records:delete' rec.pk %}" class="btn btn-sm btn-outline-danger">Удалить</a>
@@ -87,7 +87,7 @@
   </div>
 </div>
 {% else %}
-<div class="text-center py-5 text-muted">
+<div class="text-center py-5" style="color: #94a3b8;">
   <i class="bi bi-file-medical fs-1 d-block mb-2"></i>
   {% if f %}
     По вашему запросу ничего не найдено. <a href="{% url 'records:list' %}">Сбросить фильтр</a>

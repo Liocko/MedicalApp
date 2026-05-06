@@ -2,93 +2,132 @@
 {% block title %}{{ patient }}{% endblock %}
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0">{{ patient }}</h1>
-  <div class="d-flex gap-2">
-    <a href="{% url 'patients:update' patient.pk %}" class="btn btn-outline-primary">
-      <i class="bi bi-pencil me-1"></i>Изменить
+{# ── Header ── #}
+<div class="d-flex align-items-center gap-3 mb-4">
+  <a href="{% url 'patients:list' %}" class="btn btn-sm btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Назад
+  </a>
+  <h1 class="page-title mb-0">Карточка пациента</h1>
+  <div class="ms-auto d-flex gap-2">
+    <a href="{% url 'patients:update' patient.pk %}" class="btn btn-outline-secondary btn-sm" style="font-size: 0.8rem; padding: 6px 14px;">
+      Редактировать
     </a>
-    <a href="{% url 'patients:delete' patient.pk %}" class="btn btn-outline-danger">
-      <i class="bi bi-trash me-1"></i>Удалить
+    <a href="{% url 'records:create' %}" class="btn btn-primary btn-sm" style="font-size: 0.8rem; padding: 6px 14px;">
+      <i class="bi bi-plus-lg me-1"></i>Новая запись
     </a>
   </div>
 </div>
 
-<div class="row g-4">
-  <div class="col-md-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white fw-semibold">
-        <i class="bi bi-person me-1"></i>Данные пациента
+{# ── Two-column layout ── #}
+<div class="row g-3 mb-3">
+
+  {# Left: basic info #}
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-body" style="padding: 20px;">
+        {# Avatar + name #}
+        <div class="d-flex align-items-center gap-3 pb-3 mb-3" style="border-bottom: 1px solid #f1f5f9;">
+          <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; font-weight: 700; flex-shrink: 0;">
+            {{ patient.last_name|first|upper }}{{ patient.first_name|first|upper }}
+          </div>
+          <div>
+            <div style="font-weight: 700; font-size: 1rem; color: #0f172a;">{{ patient }}</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
+              Пациент · ID #{{ patient.pk|stringformat:"05d" }}
+            </div>
+          </div>
+        </div>
+
+        {# Info rows #}
+        {% for label, value, mono in patient_info %}
+        <div class="d-flex justify-content-between align-items-center py-2" style="border-bottom: 1px solid #f8fafc; font-size: 0.875rem;">
+          <span style="color: #94a3b8; font-weight: 500;">{{ label }}</span>
+          <span style="color: #1e293b; font-weight: 600; {% if mono %}font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;{% endif %}">{{ value }}</span>
+        </div>
+        {% endfor %}
       </div>
-      <ul class="list-group list-group-flush">
-        <li class="list-group-item d-flex justify-content-between">
-          <span class="text-muted">Дата рождения</span>
-          <span>{{ patient.date_of_birth|date:"d.m.Y" }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-          <span class="text-muted">Телефон</span>
-          <span>{{ patient.phone|default:"—" }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between">
-          <span class="text-muted">Email</span>
-          <span>{{ patient.email|default:"—" }}</span>
-        </li>
-        {% if patient.address %}
-        <li class="list-group-item">
-          <div class="text-muted mb-1">Адрес</div>
-          <div>{{ patient.address }}</div>
-        </li>
-        {% endif %}
-      </ul>
     </div>
   </div>
 
-  <div class="col-md-8">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-white d-flex justify-content-between align-items-center">
-        <span class="fw-semibold"><i class="bi bi-file-medical me-1"></i>Медицинские записи</span>
-        <a href="{% url 'records:create' %}" class="btn btn-sm btn-primary">
-          <i class="bi bi-plus-lg me-1"></i>Добавить запись
-        </a>
-      </div>
-      {% if records %}
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Заголовок</th>
-              <th>Врач</th>
-              <th>Дата</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for rec in records %}
-            <tr>
-              <td>{{ rec.title }}</td>
-              <td>{{ rec.doctor }}</td>
-              <td class="text-muted small">{{ rec.created_at|date:"d.m.Y" }}</td>
-              <td class="text-end">
-                <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm btn-outline-secondary">Открыть</a>
-              </td>
-            </tr>
+  {# Right: medical blocks #}
+  <div class="col-lg-7">
+    <div class="d-flex flex-column gap-3 h-100">
+
+      {# Chronic diseases — placeholder until model fields added #}
+      <div class="card">
+        <div class="card-body" style="padding: 16px 18px;">
+          <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Хронические заболевания</div>
+          {% if records %}
+            {% for rec in records|slice:":3" %}
+            {% if rec.diagnosis %}
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div style="width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0;"></div>
+              <span style="font-size: 0.82rem; color: #374151;">{{ rec.diagnosis }}</span>
+            </div>
+            {% endif %}
             {% endfor %}
-          </tbody>
-        </table>
+          {% endif %}
+          {% if not records %}
+          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Нет данных</p>
+          {% endif %}
+        </div>
       </div>
-      {% else %}
-      <div class="card-body text-muted text-center py-4">
-        Записей нет.
+
+      {# Allergies — placeholder #}
+      <div class="card">
+        <div class="card-body" style="padding: 16px 18px;">
+          <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Аллергии</div>
+          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Не указаны — будет доступно после добавления поля в модель</p>
+        </div>
+      </div>
+
+      {# Last doctor — from latest record #}
+      {% if records %}
+      <div class="card">
+        <div class="card-body" style="padding: 16px 18px;">
+          <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Лечащий врач</div>
+          <div style="font-size: 0.875rem; color: #1e3a5f; font-weight: 600;">{{ records.0.doctor }}</div>
+          <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">{{ records.0.doctor.specialization }}</div>
+        </div>
       </div>
       {% endif %}
+
     </div>
   </div>
 </div>
 
-<div class="mt-3">
-  <a href="{% url 'patients:list' %}" class="text-muted text-decoration-none">
-    <i class="bi bi-arrow-left me-1"></i>Назад к списку
-  </a>
+{# ── Visit history ── #}
+<div class="card">
+  <div class="card-header bg-white d-flex justify-content-between align-items-center" style="padding: 14px 18px !important;">
+    <span style="font-weight: 700; color: #0f172a; font-size: 0.875rem;">История визитов</span>
+    <a href="{% url 'records:create' %}" class="btn btn-sm btn-primary" style="font-size: 0.78rem; padding: 4px 12px;">
+      <i class="bi bi-plus-lg me-1"></i>Добавить
+    </a>
+  </div>
+  {% if records %}
+    {% for rec in records %}
+    <div class="d-flex gap-3 align-items-start px-3 py-3" style="border-bottom: {% if not forloop.last %}1px solid #f8fafc{% else %}none{% endif %};">
+      <div class="font-mono" style="min-width: 86px; font-size: 0.78rem; color: #3b82f6; font-weight: 600; padding-top: 1px;">
+        {{ rec.created_at|date:"d.m.Y" }}
+      </div>
+      <div style="flex: 1;">
+        <div style="font-weight: 600; font-size: 0.875rem; color: #0f172a;">
+          {% if rec.diagnosis %}{{ rec.diagnosis }}{% else %}{{ rec.title }}{% endif %}
+        </div>
+        <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+          {{ rec.doctor }} — {{ rec.title }}
+        </div>
+      </div>
+      <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm" style="font-size: 0.75rem; padding: 3px 10px; border: 1px solid #e2e8f0; color: #64748b; background: none; white-space: nowrap;">
+        Открыть
+      </a>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="card-body text-center py-4" style="color: #94a3b8; font-size: 0.875rem;">
+    Записей нет. <a href="{% url 'records:create' %}">Создать первую</a>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock %}
