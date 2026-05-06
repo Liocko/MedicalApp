@@ -28,6 +28,8 @@ ALLOWED_HOSTS = get_env_variable('ALLOWED_HOSTS', '127.0.0.1,localhost').split('
 
 # Приложения
 INSTALLED_APPS = [
+    "daphne",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -35,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    "channels",
     "rest_framework",
     "phonenumber_field",
     "social_django",
@@ -43,6 +46,14 @@ INSTALLED_APPS = [
     "patients",
     "records",
 ]
+
+ASGI_APPLICATION = "config.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}
 
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.yandex.YandexOAuth2',
