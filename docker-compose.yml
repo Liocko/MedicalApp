@@ -3,8 +3,6 @@ services:
     build: .
     ports:
       - "8000:8000"
-    environment:
-      PORT: 8000
     volumes:
       - .:/app
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:${PORT}"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
