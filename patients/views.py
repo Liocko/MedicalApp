@@ -14,10 +14,17 @@ class PatientListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         from records.models import MedicalRecord
         last = MedicalRecord.objects.filter(patient=OuterRef('pk')).order_by('-created_at')
-        return Patient.objects.annotate(
+        base_qs = Patient.objects.annotate(
             last_visit=Subquery(last.values('created_at')[:1]),
             last_doctor=Subquery(last.values('doctor__last_name')[:1]),
         ).order_by('last_name', 'first_name')
+        q = self.request.GET.get('q', '').strip().lower()
+        if q:
+            pks = [p.pk for p in base_qs
+                   if q in p.last_name.lower() or q in p.first_name.lower()
+                   or q in str(p.phone or '').lower()]
+            return base_qs.filter(pk__in=pks)
+        return base_qs
 
 
 class PatientDetailView(LoginRequiredMixin, DetailView):

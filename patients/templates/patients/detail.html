@@ -13,21 +13,21 @@
       Редактировать
     </a>
     <a href="{% url 'records:create' %}" class="btn btn-primary btn-sm" style="font-size: 0.8rem; padding: 6px 14px;">
-      <i class="bi bi-plus-lg me-1"></i>Новая запись
+      <i class="bi bi-plus-lg me-1"></i>Записать на приём
     </a>
   </div>
 </div>
 
-{# ── Two-column layout ── #}
+{# ── Two-column layout (equal) ── #}
 <div class="row g-3 mb-3">
 
   {# Left: basic info #}
-  <div class="col-lg-5">
+  <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-body" style="padding: 20px;">
         {# Avatar + name #}
         <div class="d-flex align-items-center gap-3 pb-3 mb-3" style="border-bottom: 1px solid #f1f5f9;">
-          <div style="width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.2rem; font-weight: 700; flex-shrink: 0;">
+          <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1.3rem; font-weight: 700; flex-shrink: 0;">
             {{ patient.last_name|first|upper }}{{ patient.first_name|first|upper }}
           </div>
           <div>
@@ -35,6 +35,14 @@
             <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">
               Пациент · ID #{{ patient.pk|stringformat:"05d" }}
             </div>
+            {% if records %}
+              {% with records.0.created_at|date:"Y-m-d" as last_date %}
+              {% now "Y-m-d" as today_str %}
+              {% if last_date == today_str %}
+              <span class="status-badge badge-today" style="margin-top: 6px; display: inline-block;">Приём сегодня</span>
+              {% endif %}
+              {% endwith %}
+            {% endif %}
           </div>
         </div>
 
@@ -50,47 +58,58 @@
   </div>
 
   {# Right: medical blocks #}
-  <div class="col-lg-7">
+  <div class="col-lg-6">
     <div class="d-flex flex-column gap-3 h-100">
 
-      {# Chronic diseases — placeholder until model fields added #}
+      {# Chronic diseases #}
       <div class="card">
         <div class="card-body" style="padding: 16px 18px;">
           <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Хронические заболевания</div>
-          {% if records %}
-            {% for rec in records|slice:":3" %}
+          {% with diagnoses_shown=0 %}
+          {% for rec in records %}
             {% if rec.diagnosis %}
             <div class="d-flex align-items-center gap-2 mb-2">
               <div style="width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; flex-shrink: 0;"></div>
               <span style="font-size: 0.82rem; color: #374151;">{{ rec.diagnosis }}</span>
             </div>
             {% endif %}
-            {% endfor %}
-          {% endif %}
+          {% empty %}
+          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Нет данных</p>
+          {% endfor %}
+          {% endwith %}
           {% if not records %}
           <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Нет данных</p>
           {% endif %}
         </div>
       </div>
 
-      {# Allergies — placeholder #}
+      {# Allergies #}
       <div class="card">
         <div class="card-body" style="padding: 16px 18px;">
           <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Аллергии</div>
-          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">Не указаны — будет доступно после добавления поля в модель</p>
+          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; font-style: italic;">Не указаны</p>
         </div>
       </div>
 
-      {# Last doctor — from latest record #}
-      {% if records %}
+      {# Current prescriptions from recent records #}
       <div class="card">
         <div class="card-body" style="padding: 16px 18px;">
-          <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Лечащий врач</div>
-          <div style="font-size: 0.875rem; color: #1e3a5f; font-weight: 600;">{{ records.0.doctor }}</div>
-          <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 2px;">{{ records.0.doctor.specialization }}</div>
+          <div style="font-weight: 700; font-size: 0.875rem; color: #0f172a; margin-bottom: 10px;">Текущие назначения</div>
+          {% for rec in records|slice:":3" %}
+            {% if rec.description %}
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div style="width: 6px; height: 6px; border-radius: 2px; background: #10b981; flex-shrink: 0;"></div>
+              <span style="font-size: 0.82rem; color: #374151;">{{ rec.description|truncatechars:60 }}</span>
+            </div>
+            {% endif %}
+          {% empty %}
+          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; font-style: italic;">Нет данных</p>
+          {% endfor %}
+          {% if records and not records.0.description %}
+          <p style="color: #94a3b8; font-size: 0.82rem; margin: 0; font-style: italic;">Нет данных</p>
+          {% endif %}
         </div>
       </div>
-      {% endif %}
 
     </div>
   </div>
@@ -107,7 +126,7 @@
   {% if records %}
     {% for rec in records %}
     <div class="d-flex gap-3 align-items-start px-3 py-3" style="border-bottom: {% if not forloop.last %}1px solid #f8fafc{% else %}none{% endif %};">
-      <div class="font-mono" style="min-width: 86px; font-size: 0.78rem; color: #3b82f6; font-weight: 600; padding-top: 1px;">
+      <div class="font-mono" style="min-width: 90px; font-size: 0.78rem; color: #3b82f6; font-weight: 600; padding-top: 1px;">
         {{ rec.created_at|date:"d.m.Y" }}
       </div>
       <div style="flex: 1;">
@@ -115,7 +134,7 @@
           {% if rec.diagnosis %}{{ rec.diagnosis }}{% else %}{{ rec.title }}{% endif %}
         </div>
         <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
-          {{ rec.doctor }} — {{ rec.title }}
+          {{ rec.doctor }} — {% if rec.description %}{{ rec.description|truncatechars:80 }}{% else %}{{ rec.title }}{% endif %}
         </div>
       </div>
       <a href="{% url 'records:detail' rec.pk %}" class="btn btn-sm" style="font-size: 0.75rem; padding: 3px 10px; border: 1px solid #e2e8f0; color: #64748b; background: none; white-space: nowrap;">

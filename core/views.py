@@ -14,11 +14,15 @@ from .models import UserProfile
 def index(request):
     from django.utils import timezone
     today = timezone.localdate()
+    today_records = MedicalRecord.objects.select_related('patient', 'doctor').filter(
+        created_at__date=today
+    ).order_by('created_at')
     context = {
         'patient_count': Patient.objects.count(),
         'doctor_count': Doctor.objects.count(),
         'record_count': MedicalRecord.objects.count(),
-        'today_count': MedicalRecord.objects.filter(created_at__date=today).count(),
+        'today_count': today_records.count(),
+        'today_records': today_records,
         'recent_records': MedicalRecord.objects.select_related('patient', 'doctor').order_by('-created_at')[:6],
     }
     return render(request, 'core/index.html', context)
