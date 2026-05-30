@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth import authenticate, update_session_auth_hash
+from django.contrib.auth import authenticate
 
 from .models import User
 

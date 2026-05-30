@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
 from .models import Project
 from .forms import ProjectForm
@@ -68,6 +69,7 @@ def edit_project(request, pk):
     })
 
 
+@require_POST
 @login_required
 def complete_project(request, pk):
     project = get_object_or_404(Project, pk=pk, owner=request.user)
@@ -78,6 +80,7 @@ def complete_project(request, pk):
     return JsonResponse({'status': 'ok', 'project_status': 'closed'})
 
 
+@require_POST
 @login_required
 def toggle_favorite(request, pk):
     project = get_object_or_404(Project, pk=pk)
@@ -90,6 +93,7 @@ def toggle_favorite(request, pk):
     return JsonResponse({'status': 'ok', 'favorited': favorited})
 
 
+@require_POST
 @login_required
 def toggle_participate(request, pk):
     project = get_object_or_404(Project, pk=pk)
