@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Редактирование профиля — TeamFinder{% endblock %}
+{% block page_id %}edit-profile{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile_edit.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1 class="auth-title">Редактирование профиля</h1>
+
+    <form method="post" enctype="multipart/form-data" class="auth-form">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="form-errors">
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="avatar-upload">
+            {% if form.instance.avatar %}
+            <img src="{{ form.instance.avatar.url }}" alt="Аватар" class="avatar-preview" id="avatarPreview">
+            {% else %}
+            <div class="avatar-preview avatar-preview--placeholder" id="avatarPreview">{{ form.instance.name|first }}</div>
+            {% endif %}
+            <label for="{{ form.avatar.id_for_label }}" class="btn btn--outline btn--sm">Заменить</label>
+            {{ form.avatar }}
+            {% if form.avatar.errors %}
+            <div class="field-errors">{% for e in form.avatar.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div class="name-fields">
+            <div class="form-field">
+                <label for="{{ form.name.id_for_label }}" class="form-label">Имя *</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="field-errors">{% for e in form.name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+                {% endif %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.surname.id_for_label }}" class="form-label">Фамилия *</label>
+                {{ form.surname }}
+                {% if form.surname.errors %}
+                <div class="field-errors">{% for e in form.surname.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.about.id_for_label }}" class="form-label">О себе</label>
+            {{ form.about }}
+            {% if form.about.errors %}
+            <div class="field-errors">{% for e in form.about.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-row">
+            <div class="form-field">
+                <label for="{{ form.phone.id_for_label }}" class="form-label">Телефон</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                <div class="field-errors">{% for e in form.phone.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+                {% endif %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.github_url.id_for_label }}" class="form-label">GitHub</label>
+                {{ form.github_url }}
+                {% if form.github_url.errors %}
+                <div class="field-errors">{% for e in form.github_url.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/users/{{ request.user.pk }}/" class="btn btn--outline">Отмена</a>
+            <button type="submit" class="btn btn--primary">Сохранить</button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.getElementById('{{ form.avatar.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const preview = document.getElementById('avatarPreview');
+            if (preview.tagName === 'IMG') {
+                preview.src = ev.target.result;
+            } else {
+                const img = document.createElement('img');
+                img.src = ev.target.result;
+                img.className = 'avatar-preview';
+                img.id = 'avatarPreview';
+                preview.replaceWith(img);
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

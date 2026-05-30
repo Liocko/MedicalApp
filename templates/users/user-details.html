@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ user.name }} {{ user.surname }} — TeamFinder{% endblock %}
+{% block page_id %}user-details{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/profile.css' %}">{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="profile">
+        <div class="profile__header">
+            <div class="profile__avatar-wrap">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.name }}" class="profile__avatar">
+                {% else %}
+                <div class="profile__avatar-placeholder">{{ user.name|first }}</div>
+                {% endif %}
+            </div>
+            <div class="profile__info">
+                <h1 class="profile__name">{{ user.surname }} {{ user.name }}</h1>
+                {% if user.about %}
+                <p class="profile__about">{{ user.about }}</p>
+                {% endif %}
+                <div class="profile__contacts">
+                    <a href="mailto:{{ user.email }}" class="profile__contact">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        {{ user.email }}
+                    </a>
+                    {% if user.phone %}
+                    <span class="profile__contact">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.77a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7a2 2 0 0 1 1.72 2.02z"/></svg>
+                        {{ user.phone }}
+                    </span>
+                    {% endif %}
+                    {% if user.github_url %}
+                    <a href="{{ user.github_url }}" class="profile__contact" target="_blank" rel="noopener">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        GitHub
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% if request.user.is_authenticated and request.user.pk == user.pk %}
+            <div class="profile__owner-actions">
+                <button class="btn btn--outline btn--icon" onclick="shareProfile('/users/{{ user.pk }}/')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </button>
+                <a href="/users/edit-profile/" class="btn btn--outline">Редактировать профиль</a>
+                <a href="/projects/create-project/" class="btn btn--primary">Добавить проект</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="profile__projects">
+            <h2 class="profile__section-title">Активность</h2>
+            {% if user.owned_projects.all %}
+            <div class="projects-grid">
+                {% for project in user.owned_projects.all %}
+                <div class="project-card">
+                    <a href="/projects/{{ project.pk }}/" class="project-card__title">{{ project.name }}</a>
+                    <span class="project-card__status project-card__status--{{ project.status }}">
+                        {% if project.status == 'open' %}Открыт{% else %}Закрыт{% endif %}
+                    </span>
+                    <p class="project-card__desc">{{ project.description|truncatechars:150 }}</p>
+                    <div class="project-card__footer">
+                        <span class="project-card__date">{{ project.created_at|date:"d.m.Y" }}</span>
+                        <span class="project-card__participants">
+                            {{ project.participants.count }}
+                            {% with cnt=project.participants.count %}
+                            {% if cnt == 1 %}участник{% elif cnt >= 2 and cnt <= 4 %}участника{% else %}участников{% endif %}
+                            {% endwith %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state__text">Пока нет проектов</p>
+            {% if request.user.is_authenticated and request.user.pk == user.pk %}
+            <a href="/projects/create-project/" class="btn btn--primary">Создать проект</a>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

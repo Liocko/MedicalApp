@@ -1,0 +1,9 @@
+.avatar-upload { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.avatar-preview { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+.avatar-preview--placeholder {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: #4f46e5; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 700;
+}
+input[type="file"] { display: none; }

@@ -1,0 +1,45 @@
+.project-details { background: #fff; border-radius: 12px; padding: 32px; border: 1px solid #e2e8f0; }
+.project-details__header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
+.project-details__meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.project-details__owner { display: flex; align-items: center; gap: 8px; }
+.project-details__owner:hover { text-decoration: none; }
+.project-details__owner-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.project-details__avatar-placeholder {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #4f46e5; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+}
+.project-details__date { font-size: 13px; color: #a0aec0; }
+.project-details__status { font-size: 12px; font-weight: 500; padding: 3px 8px; border-radius: 20px; }
+.project-details__status--open { background: #c6f6d5; color: #276749; }
+.project-details__status--closed { background: #fed7d7; color: #9b2c2c; }
+.project-details__actions { display: flex; gap: 8px; flex-shrink: 0; }
+.project-details__title { font-size: 28px; font-weight: 700; margin-bottom: 16px; }
+.project-details__desc { font-size: 15px; color: #4a5568; line-height: 1.7; margin-bottom: 20px; }
+.project-details__github { display: inline-flex; align-items: center; gap: 6px; color: #4f46e5; font-size: 14px; margin-bottom: 20px; }
+.project-details__owner-actions { display: flex; gap: 12px; margin: 24px 0; }
+.project-details__participate { margin: 24px 0; }
+.project-details__participants { margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 24px; }
+.project-details__section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+.fav-btn { color: #cbd5e0; }
+.fav-btn--active { color: #ef4444; }
+.fav-btn:hover { color: #ef4444; }
+
+.participants-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+.participant-card {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 8px; padding: 16px; background: #f7fafc;
+    border-radius: 10px; text-align: center; min-width: 120px;
+    text-decoration: none; color: inherit;
+}
+.participant-card:hover { background: #edf2f7; text-decoration: none; }
+.participant-card__avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.participant-card__avatar-placeholder {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #4f46e5; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700;
+}
+.participant-card__name { font-size: 13px; font-weight: 500; }
+.participant-card__role { font-size: 11px; color: #4f46e5; background: #eef2ff; padding: 2px 6px; border-radius: 10px; }

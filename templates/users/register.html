@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Регистрация — TeamFinder{% endblock %}
+{% block page_id %}register{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1 class="auth-title">Регистрация</h1>
+
+    <form method="post" class="auth-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+            {% for error in form.non_field_errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="name-fields">
+            <div class="form-field">
+                <label for="{{ form.name.id_for_label }}" class="form-label">Имя *</label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="field-errors">{% for e in form.name.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+                {% endif %}
+            </div>
+            <div class="form-field">
+                <label for="{{ form.surname.id_for_label }}" class="form-label">Фамилия *</label>
+                {{ form.surname }}
+                {% if form.surname.errors %}
+                <div class="field-errors">{% for e in form.surname.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.email.id_for_label }}" class="form-label">Email *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div class="field-errors">{% for e in form.email.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.password1.id_for_label }}" class="form-label">Пароль *</label>
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+            <div class="field-errors">{% for e in form.password1.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-field">
+            <label for="{{ form.password2.id_for_label }}" class="form-label">Подтвердите пароль *</label>
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+            <div class="field-errors">{% for e in form.password2.errors %}<p class="field-error">{{ e }}</p>{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full">Зарегистрироваться</button>
+
+        <p class="auth-footer">Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></p>
+    </form>
+</div>
+{% endblock %}

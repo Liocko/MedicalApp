@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }} — TeamFinder{% endblock %}
+{% block page_id %}project-details{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/project_details.css' %}">{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="project-details">
+        <div class="project-details__header">
+            <div class="project-details__meta">
+                <a href="/users/{{ project.owner.pk }}/" class="project-details__owner">
+                    {% if project.owner.avatar %}
+                    <img src="{{ project.owner.avatar.url }}" alt="{{ project.owner.name }}" class="project-details__owner-avatar">
+                    {% else %}
+                    <div class="project-details__avatar-placeholder">{{ project.owner.name|first }}</div>
+                    {% endif %}
+                    <span>{{ project.owner.surname }} {{ project.owner.name }}</span>
+                </a>
+                <span class="project-details__date">{{ project.created_at|date:"d.m.Y" }}</span>
+                <span class="project-details__status project-details__status--{{ project.status }}">
+                    {% if project.status == 'open' %}Открыт{% else %}Закрыт{% endif %}
+                </span>
+            </div>
+            <div class="project-details__actions">
+                <button class="btn btn--outline btn--icon" onclick="shareProject('/projects/{{ project.pk }}/')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                </button>
+                {% if user.is_authenticated %}
+                <button class="btn btn--outline btn--icon fav-btn {% if project in user.favorites.all %}fav-btn--active{% endif %}"
+                        id="favBtn"
+                        onclick="toggleFavorite(this, {{ project.pk }})">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="{% if project in user.favorites.all %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <h1 class="project-details__title">{{ project.name }}</h1>
+
+        {% if project.description %}
+        <p class="project-details__desc">{{ project.description }}</p>
+        {% endif %}
+
+        {% if project.github_url %}
+        <a href="{{ project.github_url }}" class="project-details__github" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+        </a>
+        {% endif %}
+
+        {% if user.is_authenticated and user.pk == project.owner.pk %}
+        <div class="project-details__owner-actions">
+            <a href="/projects/{{ project.pk }}/edit/" class="btn btn--outline">Редактировать проект</a>
+            {% if project.status == 'open' %}
+            <button class="btn btn--danger" id="completeBtn" onclick="completeProject({{ project.pk }})">Завершить проект</button>
+            {% endif %}
+        </div>
+        {% elif user.is_authenticated %}
+        <div class="project-details__participate">
+            <button class="btn {% if user_participates %}btn--outline{% else %}btn--primary{% endif %}"
+                    id="participateBtn"
+                    onclick="toggleParticipate(this, {{ project.pk }})">
+                {% if user_participates %}Отказаться от участия{% else %}Присоединиться к проекту{% endif %}
+            </button>
+        </div>
+        {% endif %}
+
+        <div class="project-details__participants">
+            <h2 class="project-details__section-title">
+                Участники проекта ({{ project.participants.count }})
+            </h2>
+            {% if project.participants.all %}
+            <div class="participants-grid">
+                {% for participant in project.participants.all %}
+                <a href="/users/{{ participant.pk }}/" class="participant-card">
+                    {% if participant.avatar %}
+                    <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}" class="participant-card__avatar">
+                    {% else %}
+                    <div class="participant-card__avatar-placeholder">{{ participant.name|first }}</div>
+                    {% endif %}
+                    <span class="participant-card__name">{{ participant.surname }} {{ participant.name }}</span>
+                    {% if participant.pk == project.owner.pk %}
+                    <span class="participant-card__role">Автор</span>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state__text">Пока нет участников</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleFavorite(btn, projectId) {
+    fetch(`/projects/${projectId}/toggle-favorite/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            const svg = btn.querySelector('svg');
+            if (data.favorited) {
+                btn.classList.add('fav-btn--active');
+                svg.setAttribute('fill', 'currentColor');
+            } else {
+                btn.classList.remove('fav-btn--active');
+                svg.setAttribute('fill', 'none');
+            }
+        }
+    });
+}
+
+function toggleParticipate(btn, projectId) {
+    fetch(`/projects/${projectId}/toggle-participate/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            if (data.participating) {
+                btn.textContent = 'Отказаться от участия';
+                btn.classList.remove('btn--primary');
+                btn.classList.add('btn--outline');
+            } else {
+                btn.textContent = 'Присоединиться к проекту';
+                btn.classList.remove('btn--outline');
+                btn.classList.add('btn--primary');
+            }
+        }
+    });
+}
+
+function completeProject(projectId) {
+    if (!confirm('Завершить проект? Это действие нельзя отменить.')) return;
+    fetch(`/projects/${projectId}/complete/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

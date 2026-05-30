@@ -1,0 +1,5 @@
+{% load static %}
+<div class="empty-state">
+    <p class="empty-state__text">{% block empty_text %}Пока нет проектов{% endblock %}</p>
+    {% block empty_action %}{% endblock %}
+</div>

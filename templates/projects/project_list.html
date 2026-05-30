@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Актуальные проекты — TeamFinder{% endblock %}
+{% block page_id %}projects-list{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/project_list.css' %}">{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Актуальные проекты</h1>
+            <p class="page-subtitle">Найдите интересный проект и присоединитесь к команде</p>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="/projects/create-project/" class="btn btn--primary">+ Создать проект</a>
+        {% endif %}
+    </div>
+
+    {% if projects %}
+    <div class="projects-grid">
+        {% for project in projects %}
+        {% include 'includes/project-card.html' %}
+        {% endfor %}
+    </div>
+
+    {% if projects.has_other_pages %}
+    <div class="pagination">
+        {% if projects.has_previous %}
+        <a href="?page={{ projects.previous_page_number }}" class="pagination__btn">&laquo;</a>
+        {% endif %}
+        {% for num in projects.paginator.page_range %}
+        {% if projects.number == num %}
+        <span class="pagination__btn pagination__btn--active">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}" class="pagination__btn">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if projects.has_next %}
+        <a href="?page={{ projects.next_page_number }}" class="pagination__btn">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-state__text">Пока нет проектов</p>
+        {% if user.is_authenticated %}
+        <a href="/projects/create-project/" class="btn btn--primary">Создать первый проект</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleFavorite(btn, projectId) {
+    fetch(`/projects/${projectId}/toggle-favorite/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            const svg = btn.querySelector('svg');
+            if (data.favorited) {
+                btn.classList.add('project-card__fav-btn--active');
+                svg.setAttribute('fill', 'currentColor');
+            } else {
+                btn.classList.remove('project-card__fav-btn--active');
+                svg.setAttribute('fill', 'none');
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}

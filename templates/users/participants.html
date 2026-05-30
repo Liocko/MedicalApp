@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Участники — TeamFinder{% endblock %}
+{% block page_id %}participants{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/participants.css' %}">{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Участники</h1>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="filters">
+        <span class="filters__label">Фильтр:</span>
+        <a href="/users/list/" class="filter-chip {% if not active_filter %}filter-chip--active{% endif %}">Все</a>
+        <a href="/users/list/?filter=favorite_authors" class="filter-chip {% if active_filter == 'favorite_authors' %}filter-chip--active{% endif %}">Авторы избранных</a>
+        <a href="/users/list/?filter=participated_projects_authors" class="filter-chip {% if active_filter == 'participated_projects_authors' %}filter-chip--active{% endif %}">Авторы проектов, где я участвую</a>
+        <a href="/users/list/?filter=interested_in_my_projects" class="filter-chip {% if active_filter == 'interested_in_my_projects' %}filter-chip--active{% endif %}">Кому нравятся мои проекты</a>
+        <a href="/users/list/?filter=my_project_participants" class="filter-chip {% if active_filter == 'my_project_participants' %}filter-chip--active{% endif %}">Участники моих проектов</a>
+        {% if active_filter %}
+        <a href="/users/list/" class="filter-chip filter-chip--reset">Сбросить</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if participants %}
+    <div class="participants-grid">
+        {% for participant in participants %}
+        <div class="participant-card">
+            {% if participant.avatar %}
+            <img src="{{ participant.avatar.url }}" alt="{{ participant.name }}" class="participant-card__avatar">
+            {% else %}
+            <div class="participant-card__avatar-placeholder">{{ participant.name|first }}</div>
+            {% endif %}
+            <a href="/users/{{ participant.pk }}/" class="participant-card__name">
+                {{ participant.surname }} {{ participant.name }}
+            </a>
+            {% if participant.about %}
+            <p class="participant-card__about">{{ participant.about|truncatechars:80 }}</p>
+            {% endif %}
+            <a href="/users/{{ participant.pk }}/" class="btn btn--outline btn--sm">Посмотреть контакты</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if participants.has_other_pages %}
+    <div class="pagination">
+        {% if participants.has_previous %}
+        <a href="?{% if active_filter %}filter={{ active_filter }}&{% endif %}page={{ participants.previous_page_number }}" class="pagination__btn">&laquo;</a>
+        {% endif %}
+        {% for num in participants.paginator.page_range %}
+        {% if participants.number == num %}
+        <span class="pagination__btn pagination__btn--active">{{ num }}</span>
+        {% else %}
+        <a href="?{% if active_filter %}filter={{ active_filter }}&{% endif %}page={{ num }}" class="pagination__btn">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if participants.has_next %}
+        <a href="?{% if active_filter %}filter={{ active_filter }}&{% endif %}page={{ participants.next_page_number }}" class="pagination__btn">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-state__text">Пока нет участников</p>
+        {% if active_filter %}
+        <a href="/users/list/" class="btn btn--outline">Сбросить фильтр</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

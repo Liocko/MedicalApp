@@ -1,118 +1,93 @@
-# MedicalApp
+# TeamFinder
 
-Веб-система учёта медицинских карт пациентов поликлиники.  
-Выполнена в рамках курсового проекта по дисциплинам «АКСП» и «Backend-разработка».
+Платформа для поиска единомышленников на pet-проекты. **Вариант 1**: Избранное + фильтрация пользователей.
 
-## Стек технологий
+## Стек
 
-| Категория | Выбор |
-|---|---|
-| Язык | Python 3.12 |
-| Фреймворк | Django 5.2 + Django REST Framework 3.16 |
-| База данных | PostgreSQL (prod), SQLite (dev) |
-| Frontend | Django Templates + Bootstrap 5 + кастомный CSS |
-| Аутентификация | Django Auth + Yandex OAuth2 |
-| Контейнеризация | Docker + docker-compose |
-| Тестирование | unittest + hypothesis (фаззинг) |
+- Django 5.2 (кастомная модель пользователя, авторизация по email)
+- PostgreSQL
+- Pillow (генерация аватарок)
 
-## Архитектура
-
-Проект следует принципам [12 Factor App](https://12factor.net/):
-- вся конфигурация — через переменные окружения
-- поддержка SQLite (разработка) и PostgreSQL (прод) через `DATABASE_URL`
-
-**Приложения Django:**
-- `core/` — главная страница, профиль пользователя
-- `patients/` — модели Patient и Doctor, CRUD-интерфейс
-- `records/` — модели MedicalRecord и Report, фильтрация записей
-
-**REST API** доступен по `/api/v1/` (требует авторизации):
-- `GET/POST /api/v1/patients/`
-- `GET/PUT/PATCH/DELETE /api/v1/patients/{id}/`
-- `GET/POST /api/v1/doctors/`
-- `GET/PUT/PATCH/DELETE /api/v1/doctors/{id}/`
-- `GET/POST /api/v1/records/`
-- `GET/PUT/PATCH/DELETE /api/v1/records/{id}/`
-- `GET/POST /api/v1/reports/`
-
-Все endpoints поддерживают поиск (`?search=`) и сортировку (`?ordering=`).
-
-## Быстрый старт
+## Запуск через Docker Compose
 
 ```bash
-git clone <repo-url>
-cd MedicalApp
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
+cp .env.example .env
+docker-compose up --build
+```
+
+Приложение доступно на http://localhost:8000
+
+## Запуск локально
+
+### Требования
+- Python 3.11+
+- PostgreSQL
+
+```bash
+# Установка зависимостей
 pip install -r requirements.txt
-cp .env.example .env        # задайте SECRET_KEY
+
+# Настройка окружения
+cp .env.example .env
+# Отредактируйте .env: укажите DB_NAME, DB_USER, DB_PASSWORD, DB_HOST
+
+# Миграции
 python manage.py migrate
-python manage.py seed       # заполнить БД тестовыми данными
+
+# Создать суперпользователя
+python manage.py createsuperuser
+
+# Создать тестовые данные (3 пользователя, 4 проекта)
+python manage.py create_test_data
+
+# Запустить сервер
 python manage.py runserver
 ```
 
-Откройте http://127.0.0.1:8000/
+### Тестовые аккаунты
 
-## Переменные окружения
+После `create_test_data`:
 
-| Переменная | Обязательная | По умолчанию |
-|---|---|---|
-| `SECRET_KEY` | Да | — |
-| `DEBUG` | Нет | `False` |
-| `ALLOWED_HOSTS` | Нет | `127.0.0.1,localhost` |
-| `DATABASE_URL` | Нет | `sqlite:///db.sqlite3` |
-| `YANDEX_CLIENT_ID` | Нет | `''` |
-| `YANDEX_CLIENT_SECRET` | Нет | `''` |
+| Email | Пароль |
+|-------|--------|
+| alice@example.com | testpass123 |
+| bob@example.com | testpass123 |
+| carol@example.com | testpass123 |
 
-Пример для PostgreSQL:
-```
-DATABASE_URL=postgres://user:password@localhost:5432/medicalapp
-```
-
-## Docker
-
-```bash
-docker-compose up
-```
-
-Для production используйте gunicorn (включён в requirements):
-```bash
-gunicorn config.wsgi:application --bind 0.0.0.0:8000
-```
-
-## Тесты
-
-```bash
-# Все тесты
-python manage.py test
-
-# Фаззинг-тесты (hypothesis)
-python manage.py test patients.tests.test_fuzz
-
-# По приложению
-python manage.py test patients
-python manage.py test records
-```
-
-Фаззинг-тесты генерируют случайные входные данные и проверяют, что API не возвращает 500. Каждый тест выполняет 20–30 примеров с произвольными текстами, датами и email-адресами.
-
-## Аутентификация
-
-- Форма входа: `/login/`
-- Yandex OAuth2: `/login/` → «Войти через Яндекс»
-- REST API: Session Auth или Basic Auth
-- Browsable API: `/api/v1/`
-
-## Структура проекта
+## Структура
 
 ```
-MedicalApp/
-├── config/          # настройки, корневой urls.py
-├── core/            # главная страница, UserProfile
-├── patients/        # Patient, Doctor + сериализаторы + API + фаззинг
-├── records/         # MedicalRecord, Report + сериализаторы + API
-├── templates/       # base.html, login, страницы
-├── requirements.txt
-├── docker-compose.yml
-└── manage.py
+config/        — настройки Django
+users/         — приложение пользователей (модель, формы, вьюхи)
+projects/      — приложение проектов
+templates/     — HTML-шаблоны
+static/        — CSS, JS
 ```
+
+## Реализованные URL
+
+| URL | Описание |
+|-----|----------|
+| `/` | Редирект на список проектов |
+| `/projects/list/` | Главная — список проектов (12 на странице) |
+| `/projects/<id>/` | Страница проекта |
+| `/projects/create-project/` | Создание проекта |
+| `/projects/<id>/edit/` | Редактирование проекта |
+| `/projects/<id>/complete/` | Завершить проект (POST, JSON) |
+| `/projects/<id>/toggle-favorite/` | Избранное (POST, JSON) |
+| `/projects/<id>/toggle-participate/` | Участие (POST, JSON) |
+| `/projects/favorites/` | Список избранного |
+| `/users/list/` | Список участников с фильтрами |
+| `/users/<id>/` | Профиль пользователя |
+| `/users/register/` | Регистрация |
+| `/users/login/` | Вход |
+| `/users/logout/` | Выход |
+| `/users/edit-profile/` | Редактирование профиля |
+| `/users/change-password/` | Смена пароля |
+
+## Особенности реализации
+
+- **Авторизация** — по email (кастомный `EmailBackend`)
+- **Аватарки** — автогенерируются при создании пользователя (Pillow: буква имени на цветном фоне)
+- **Телефон** — хранится в формате `+7XXXXXXXXXX`, принимает `8XXXXXXXXXX` или `+7XXXXXXXXXX`
+- **Фильтры участников** (только для авторизованных): авторы избранных, авторы проектов где участвую, кому нравятся мои проекты, участники моих проектов

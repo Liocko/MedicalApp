@@ -1,0 +1,39 @@
+{% load static %}
+<div class="project-card" data-project-id="{{ project.pk }}">
+    <div class="project-card__header">
+        <a href="/users/{{ project.owner.pk }}/" class="project-card__author">
+            {% if project.owner.avatar %}
+            <img src="{{ project.owner.avatar.url }}" alt="{{ project.owner.name }}" class="project-card__avatar">
+            {% else %}
+            <div class="project-card__avatar-placeholder">{{ project.owner.name|first }}</div>
+            {% endif %}
+            <span class="project-card__author-name">{{ project.owner.surname }} {{ project.owner.name }}</span>
+        </a>
+        <span class="project-card__date">{{ project.created_at|date:"d.m.Y" }}</span>
+        {% if user.is_authenticated %}
+        <button class="project-card__fav-btn {% if project in user.favorites.all %}project-card__fav-btn--active{% endif %}"
+                data-project-id="{{ project.pk }}"
+                onclick="toggleFavorite(this, {{ project.pk }})">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="{% if project in user.favorites.all %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+        </button>
+        {% endif %}
+    </div>
+    <a href="/projects/{{ project.pk }}/" class="project-card__title">{{ project.name }}</a>
+    <p class="project-card__desc">{{ project.description|truncatechars:150 }}</p>
+    <div class="project-card__footer">
+        <span class="project-card__status project-card__status--{{ project.status }}">
+            {% if project.status == 'open' %}Открыт{% else %}Закрыт{% endif %}
+        </span>
+        <span class="project-card__participants">
+            {{ project.participants.count }}
+            {% with cnt=project.participants.count %}
+            {% if cnt == 1 %}участник
+            {% elif cnt >= 2 and cnt <= 4 %}участника
+            {% else %}участников
+            {% endif %}
+            {% endwith %}
+        </span>
+    </div>
+</div>

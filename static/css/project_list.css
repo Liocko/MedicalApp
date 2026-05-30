@@ -1,0 +1,41 @@
+.project-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: box-shadow 0.15s;
+}
+.project-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.project-card__header { display: flex; align-items: center; gap: 8px; }
+.project-card__author { display: flex; align-items: center; gap: 8px; flex: 1; }
+.project-card__author:hover { text-decoration: none; }
+.project-card__avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.project-card__avatar-placeholder {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #4f46e5; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.project-card__author-name { font-size: 13px; color: #4a5568; }
+.project-card__date { font-size: 12px; color: #a0aec0; margin-left: auto; }
+.project-card__fav-btn {
+    background: none; border: none; cursor: pointer;
+    color: #cbd5e0; padding: 4px; border-radius: 4px;
+    display: flex; align-items: center;
+}
+.project-card__fav-btn--active { color: #ef4444; }
+.project-card__fav-btn:hover { color: #ef4444; }
+.project-card__title { font-size: 16px; font-weight: 600; color: #1a202c; }
+.project-card__title:hover { color: #4f46e5; text-decoration: none; }
+.project-card__desc { font-size: 14px; color: #718096; line-height: 1.5; flex: 1; }
+.project-card__footer { display: flex; align-items: center; gap: 12px; margin-top: auto; }
+.project-card__status {
+    font-size: 12px; font-weight: 500; padding: 3px 8px;
+    border-radius: 20px;
+}
+.project-card__status--open { background: #c6f6d5; color: #276749; }
+.project-card__status--closed { background: #fed7d7; color: #9b2c2c; }
+.project-card__participants { font-size: 13px; color: #718096; margin-left: auto; }

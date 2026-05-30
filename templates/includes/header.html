@@ -1,0 +1,75 @@
+{% load static %}
+<header class="header">
+    <div class="header__inner">
+        <a href="/projects/list/" class="header__logo">TeamFinder</a>
+        <nav class="header__nav">
+            <a href="/projects/list/" class="header__nav-link">Главная</a>
+            <a href="/users/list/" class="header__nav-link">Участники</a>
+            {% if user.is_authenticated %}
+            <a href="/projects/favorites/" class="header__nav-link">Избранное</a>
+            {% endif %}
+        </nav>
+        <div class="header__actions">
+            {% if user.is_authenticated %}
+            <a href="/projects/create-project/" class="btn btn--primary">Создать проект</a>
+            <div class="header__user">
+                <button class="header__user-btn" id="userMenuBtn">
+                    {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user.name }}" class="header__avatar">
+                    {% else %}
+                    <div class="header__avatar-placeholder">{{ user.name|first }}</div>
+                    {% endif %}
+                </button>
+                <div class="header__dropdown" id="userDropdown">
+                    <a href="/users/{{ user.pk }}/" class="header__dropdown-link">Мой профиль</a>
+                    <a href="/users/edit-profile/" class="header__dropdown-link">Редактировать профиль</a>
+                    <a href="/users/change-password/" class="header__dropdown-link">Сменить пароль</a>
+                    <button class="header__dropdown-link" onclick="shareProfile('/users/{{ user.pk }}/')">Поделиться профилем</button>
+                    <a href="/users/logout/" class="header__dropdown-link header__dropdown-link--danger">Выйти</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="/users/login/" class="btn btn--outline">Войти</a>
+            <a href="/users/register/" class="btn btn--primary">Регистрация</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="header__overlay" id="headerOverlay"></div>
+</header>
+
+<script>
+const userMenuBtn = document.getElementById('userMenuBtn');
+const userDropdown = document.getElementById('userDropdown');
+const headerOverlay = document.getElementById('headerOverlay');
+
+if (userMenuBtn) {
+    userMenuBtn.addEventListener('click', function() {
+        userDropdown.classList.toggle('header__dropdown--open');
+        headerOverlay.classList.toggle('header__overlay--active');
+    });
+}
+if (headerOverlay) {
+    headerOverlay.addEventListener('click', function() {
+        userDropdown.classList.remove('header__dropdown--open');
+        headerOverlay.classList.remove('header__overlay--active');
+    });
+}
+
+function shareProfile(url) {
+    const fullUrl = window.location.origin + url;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(fullUrl).then(() => alert('Ссылка скопирована!'));
+    } else {
+        prompt('Скопируйте ссылку:', fullUrl);
+    }
+}
+
+function shareProject(url) {
+    const fullUrl = window.location.origin + url;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(fullUrl).then(() => alert('Ссылка скопирована!'));
+    } else {
+        prompt('Скопируйте ссылку:', fullUrl);
+    }
+}
+</script>

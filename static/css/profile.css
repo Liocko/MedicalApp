@@ -1,0 +1,18 @@
+.profile { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; }
+.profile__header { display: flex; align-items: flex-start; gap: 24px; padding: 32px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+.profile__avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+.profile__avatar-placeholder {
+    width: 100px; height: 100px; border-radius: 50%;
+    background: #4f46e5; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; font-weight: 700; flex-shrink: 0;
+}
+.profile__info { flex: 1; }
+.profile__name { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.profile__about { font-size: 14px; color: #718096; margin-bottom: 12px; line-height: 1.6; }
+.profile__contacts { display: flex; flex-wrap: wrap; gap: 12px; }
+.profile__contact { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a5568; }
+.profile__contact:hover { color: #4f46e5; text-decoration: none; }
+.profile__owner-actions { display: flex; gap: 8px; flex-shrink: 0; flex-wrap: wrap; align-items: flex-start; }
+.profile__projects { padding: 32px; }
+.profile__section-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }

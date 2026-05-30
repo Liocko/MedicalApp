@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Избранное — TeamFinder{% endblock %}
+{% block page_id %}favorites{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/project_list.css' %}">{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Избранное</h1>
+    </div>
+
+    {% if projects %}
+    <div class="projects-grid">
+        {% for project in projects %}
+        {% include 'includes/project-card.html' %}
+        {% endfor %}
+    </div>
+
+    {% if projects.has_other_pages %}
+    <div class="pagination">
+        {% if projects.has_previous %}
+        <a href="?page={{ projects.previous_page_number }}" class="pagination__btn">&laquo;</a>
+        {% endif %}
+        {% for num in projects.paginator.page_range %}
+        {% if projects.number == num %}
+        <span class="pagination__btn pagination__btn--active">{{ num }}</span>
+        {% else %}
+        <a href="?page={{ num }}" class="pagination__btn">{{ num }}</a>
+        {% endif %}
+        {% endfor %}
+        {% if projects.has_next %}
+        <a href="?page={{ projects.next_page_number }}" class="pagination__btn">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-state__text">У вас пока нет избранных проектов</p>
+        <a href="/projects/list/" class="btn btn--primary">Смотреть проекты</a>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function toggleFavorite(btn, projectId) {
+    fetch(`/projects/${projectId}/toggle-favorite/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/json'},
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            if (!data.favorited) {
+                btn.closest('.project-card').remove();
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
+{% endblock %}
