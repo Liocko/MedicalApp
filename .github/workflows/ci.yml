@@ -38,15 +38,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to VM via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/MedicalApp
-            git pull origin main
-            IMAGE_TAG=${{ github.sha }} docker-compose pull web
-            IMAGE_TAG=${{ github.sha }} docker-compose up -d --scale web=2
-            echo "Release: ghcr.io/${{ github.repository }}:${{ github.sha }} → prod @ $(date)"
+      - name: Deploy (mock — в реальном окружении SSH на ВМ)
+        run: |
+          echo "Image  : ghcr.io/${{ github.repository }}:${{ github.sha }}"
+          echo "Command: IMAGE_TAG=${{ github.sha }} docker-compose up -d --scale web=2"
+          echo "Release: ${{ github.sha }} → production @ $(date -u)"
