@@ -13,7 +13,4 @@ RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY . /app
 
 
-ENV PORT=8000
-
-# runserver только для dev
-CMD sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:${PORT}"
+CMD sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
