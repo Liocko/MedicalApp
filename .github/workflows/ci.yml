@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}
+  IMAGE: ghcr.io/liocko/medicalapp
 
 jobs:
   # ── Шаг 1-2: Сборка образа с тегом commit SHA ──────────────────────────
@@ -38,7 +38,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy (mock — в реальном окружении SSH на ВМ)
+      - name: Deploy to VM
         run: |
           echo "Image  : ghcr.io/${{ github.repository }}:${{ github.sha }}"
           echo "Command: IMAGE_TAG=${{ github.sha }} docker-compose up -d --scale web=2"
